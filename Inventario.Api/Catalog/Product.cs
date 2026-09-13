@@ -8,6 +8,7 @@ public sealed class Product
     public decimal SuggestedPrice { get; set; }
     public int MinimumStock { get; set; }
     public int CurrentStock { get; set; }
+    public decimal AverageCost { get; set; }
     public bool IsActive { get; set; } = true;
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;

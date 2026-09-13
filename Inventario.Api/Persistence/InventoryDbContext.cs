@@ -1,5 +1,6 @@
 using Inventario.Api.Auth;
 using Inventario.Api.Catalog;
+using Inventario.Api.Inventory;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
 {
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,8 +36,17 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
             entity.Property(product => product.Code).HasMaxLength(50).IsRequired();
             entity.Property(product => product.Name).HasMaxLength(200).IsRequired();
             entity.Property(product => product.SuggestedPrice).HasPrecision(18, 2);
+            entity.Property(product => product.AverageCost).HasPrecision(18, 4);
             entity.HasIndex(product => product.Code).IsUnique();
             entity.HasOne(product => product.Category).WithMany().HasForeignKey(product => product.CategoryId);
+        });
+        builder.Entity<InventoryMovement>(entity =>
+        {
+            entity.ToTable("inventory_movements");
+            entity.HasKey(movement => movement.Id);
+            entity.Property(movement => movement.UnitCost).HasPrecision(18, 4);
+            entity.Property(movement => movement.Reason).HasMaxLength(500).IsRequired();
+            entity.HasIndex(movement => new { movement.ProductId, movement.CreatedAt });
         });
     }
 }
