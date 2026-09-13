@@ -1,6 +1,7 @@
 using Inventario.Api.Auth;
 using Inventario.Api.Catalog;
 using Inventario.Api.Inventory;
+using Inventario.Api.Commerce;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,8 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
+    public DbSet<Partner> Partners => Set<Partner>();
+    public DbSet<CommercialDocument> CommercialDocuments => Set<CommercialDocument>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -47,6 +50,20 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
             entity.Property(movement => movement.UnitCost).HasPrecision(18, 4);
             entity.Property(movement => movement.Reason).HasMaxLength(500).IsRequired();
             entity.HasIndex(movement => new { movement.ProductId, movement.CreatedAt });
+        });
+        builder.Entity<Partner>(entity =>
+        {
+            entity.ToTable("partners");
+            entity.Property(partner => partner.Name).HasMaxLength(200).IsRequired();
+            entity.Property(partner => partner.Phone).HasMaxLength(30);
+        });
+        builder.Entity<CommercialDocument>(entity =>
+        {
+            entity.ToTable("commercial_documents");
+            entity.Property(document => document.Total).HasPrecision(18, 2);
+            entity.Property(document => document.OutstandingBalance).HasPrecision(18, 2);
+            entity.HasOne(document => document.Partner).WithMany().HasForeignKey(document => document.PartnerId);
+            entity.HasIndex(document => new { document.Type, document.OutstandingBalance });
         });
     }
 }
