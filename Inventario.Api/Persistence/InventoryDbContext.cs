@@ -16,6 +16,7 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
     public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
     public DbSet<Partner> Partners => Set<Partner>();
     public DbSet<CommercialDocument> CommercialDocuments => Set<CommercialDocument>();
+    public DbSet<CommercialPayment> CommercialPayments => Set<CommercialPayment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -64,6 +65,13 @@ public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> opti
             entity.Property(document => document.OutstandingBalance).HasPrecision(18, 2);
             entity.HasOne(document => document.Partner).WithMany().HasForeignKey(document => document.PartnerId);
             entity.HasIndex(document => new { document.Type, document.OutstandingBalance });
+        });
+        builder.Entity<CommercialPayment>(entity =>
+        {
+            entity.ToTable("commercial_payments");
+            entity.Property(payment => payment.Amount).HasPrecision(18, 2);
+            entity.Property(payment => payment.Note).HasMaxLength(500).IsRequired();
+            entity.HasOne(payment => payment.CommercialDocument).WithMany().HasForeignKey(payment => payment.CommercialDocumentId);
         });
     }
 }
