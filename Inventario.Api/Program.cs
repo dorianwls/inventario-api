@@ -27,6 +27,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<InventoryDbContext>()
     .AddSignInManager();
+builder.Services.AddScoped<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -66,6 +67,7 @@ if (app.Environment.IsDevelopment())
     var database = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     await database.Database.MigrateAsync();
     await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
+    await IdentitySeeder.SeedAdministratorAsync(scope.ServiceProvider, builder.Configuration);
 }
 
 if (app.Environment.IsDevelopment())
