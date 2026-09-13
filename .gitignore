@@ -8,6 +8,7 @@ obj/
 *.user
 *.suo
 appsettings.Local.json
+.env
 
 # Test output
 TestResults/
